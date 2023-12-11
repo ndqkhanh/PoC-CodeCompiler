@@ -94,7 +94,7 @@ router.get("/", async function (req, res) {
     method: "GET",
     url: `${process.env.COMPILER_URL}/submissions/batch`,
     params: {
-      tokens: `${req.body.tokens[0].token},${req.body.tokens[1].token},${req.body.tokens[2].token}`,
+      tokens: `${req.body.tokens[0]},${req.body.tokens[1]},${req.body.tokens[2]}`,
       base64_encoded: "false",
       fields: "stdout,time,memory,stderr,compile_output,message",
     },
