@@ -1,5 +1,5 @@
 import express from "express";
-import { readFile } from "fs/promises";
+import { readFileSync } from "fs";
 
 const input = [
   [1, 42],
@@ -13,15 +13,13 @@ const router = express.Router();
 
 router.post("/", async function (req, res) {
   const filepath =
-    req.language_id === 91
+    req.body.language_id === 91
       ? "codes/Main.java"
-      : req.language_id === 54
+      : req.body.language_id === 54
       ? "codes/cplusplus.py"
       : "codes/python.py";
 
-  const source = JSON.parse(
-    await readFile(new URL(`../${filepath}`, import.meta.url))
-  );
+  const source = readFileSync(new URL(`../${filepath}`, import.meta.url));
 
   console.log(`Language ID: ${req.language_id}`);
   console.log(`Source: ${source}`);
