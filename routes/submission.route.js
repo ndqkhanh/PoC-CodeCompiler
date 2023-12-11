@@ -14,7 +14,7 @@ const router = express.Router();
 router.post("/", async function (req, res) {
   const filepath =
     req.language_id === 91
-      ? "codes/java.java"
+      ? "codes/Main.java"
       : req.language_id === 54
       ? "codes/cplusplus.py"
       : "codes/python.py";
