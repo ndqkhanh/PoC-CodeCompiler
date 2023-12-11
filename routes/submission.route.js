@@ -1,13 +1,14 @@
 import express from "express";
+import axios from "axios";
 import { readFileSync } from "fs";
 
-const input = [
+const inputs = [
   [1, 42],
   [4, 23],
   [7, 10],
 ];
 
-const output = [43, 27, 17];
+const outputs = [43, 27, 17];
 
 const router = express.Router();
 
@@ -16,13 +17,40 @@ router.post("/", async function (req, res) {
     req.body.language_id === 91
       ? "codes/Main.java"
       : req.body.language_id === 54
-      ? "codes/cplusplus.py"
+      ? "codes/cplusplus.cpp"
       : "codes/python.py";
 
   const source = readFileSync(new URL(`../${filepath}`, import.meta.url));
 
   console.log(`Language ID: ${req.language_id}`);
   console.log(`Source: ${source}`);
+
+  const options = {
+    method: 'POST',
+    url: `${process.env.COMPILER_URL}/submissions`,
+    params: {
+      base64_encoded: 'false',
+      fields: "*"
+    },
+    headers: {
+      'content-type': 'application/json',
+      'Content-Type': 'application/json',
+      'X-RapidAPI-Key': process.env.RAPID_APIKEY,
+      'X-RapidAPI-Host': process.env.HOST,
+    },
+    data: {
+      language_id: req.body.language_id,
+      source_code: source,
+      stdin: '1\n2'
+    }
+  }
+  try {
+    const response = await axios.request(options);
+    console.log(JSON.stringify(response.data))
+    
+  } catch (error) {
+    console.error(error);
+  }
 
   res.status(201).json([]);
 });

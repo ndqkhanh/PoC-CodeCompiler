@@ -1,17 +1,15 @@
 import express from "express";
+import dotenv from 'dotenv';
 
 import submissionRouter from "./routes/submission.route.js";
 import languageRouter from "./routes/language.route.js";
 
 const app = express();
 app.use(express.json());
+dotenv.config();
 
 app.use("/api/submissions", submissionRouter);
 app.use("/api/languages", languageRouter);
-
-app.get("/err", function (req, res) {
-  throw new Error("Error!");
-});
 
 app.use(function (req, res) {
   res.status(404).json({
