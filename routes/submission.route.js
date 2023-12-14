@@ -10,6 +10,34 @@ const inputs = [
 
 const outputs = [43, 27, 17];
 
+function wait(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+async function requestAndRetry(options) {
+  const maxRetries = 3;
+  let retries = 5;
+  let timeout = 1000;
+
+  while (retries > 0) {
+    await wait(timeout);
+    const response2 = await axios.request(options);
+    const isDataReady = response2.data.submissions.every((submission) =>
+      Object.values(submission).some((value) => value !== null)
+    );
+    if (isDataReady) {
+      const data = response2.data.submissions;
+      data.forEach((d, i) => {
+        d.pass = d.stdout == outputs[i];
+      });
+      return data;
+    }
+    retries--;
+  }
+
+  throw new Error(`Request failed after ${maxRetries} retries`);
+}
+
 const router = express.Router();
 
 router.post("/", async function (req, res) {
@@ -29,7 +57,7 @@ router.post("/", async function (req, res) {
     method: "POST",
     url: `${process.env.COMPILER_URL}/submissions/batch`,
     params: {
-      base64_encoded: "false",
+      base64_encoded: "true",
     },
     headers: {
       "content-type": "application/json",
@@ -41,20 +69,26 @@ router.post("/", async function (req, res) {
       submissions: [
         {
           language_id: language_id,
-          source_code: source,
-          stdin: `${inputs[0][0]}\n${inputs[0][1]}`,
+          source_code: Buffer.from(source).toString("base64"),
+          stdin: Buffer.from(`${inputs[0][0]}\n${inputs[0][1]}`).toString(
+            "base64"
+          ),
           cpu_time_limit: 1,
         },
         {
           language_id: language_id,
-          source_code: source,
-          stdin: `${inputs[1][0]}\n${inputs[1][1]}`,
+          source_code: Buffer.from(source).toString("base64"),
+          stdin: Buffer.from(`${inputs[1][0]}\n${inputs[1][1]}`).toString(
+            "base64"
+          ),
           cpu_time_limit: 1,
         },
         {
           language_id: language_id,
-          source_code: source,
-          stdin: `${inputs[2][0]}\n${inputs[2][1]}`,
+          source_code: Buffer.from(source).toString("base64"),
+          stdin: Buffer.from(`${inputs[2][0]}\n${inputs[2][1]}`).toString(
+            "base64"
+          ),
           cpu_time_limit: 1,
         },
       ],
@@ -76,14 +110,9 @@ router.post("/", async function (req, res) {
         "X-RapidAPI-Host": process.env.RAPID_APIHOST,
       },
     };
-    setTimeout(async () => {
-      const response2 = await axios.request(options2);
-      const data = response2.data.submissions;
-      data.forEach((d, i) => {
-        d.pass = d.stdout == outputs[i];
-      });
-      res.json(data);
-    }, 4000);
+
+    const data = await requestAndRetry(options2);
+    res.status(201).json(data);
   } catch (error) {
     console.error(error);
   }
@@ -96,7 +125,7 @@ router.get("/", async function (req, res) {
     params: {
       tokens: `${req.body.tokens[0]},${req.body.tokens[1]},${req.body.tokens[2]}`,
       base64_encoded: "false",
-      fields: "stdout,time,memory,stderr,token,compile_output,message,status",
+      fields: "stdout,time,memory,stderr,compile_output,message",
     },
     headers: {
       "X-RapidAPI-Key": process.env.RAPID_APIKEY,
