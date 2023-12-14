@@ -10,34 +10,6 @@ const inputs = [
 
 const outputs = [43, 27, 17];
 
-function wait(ms) {
-  return new Promise((res) => setTimeout(res, ms));
-}
-
-async function requestAndRetry(options) {
-  const maxRetries = 3;
-  let retries = 5;
-  let timeout = 1000;
-
-  while (retries > 0) {
-    await wait(timeout);
-    const response2 = await axios.request(options);
-    const isDataReady = response2.data.submissions.every((submission) =>
-      Object.values(submission).some((value) => value !== null)
-    );
-    if (isDataReady) {
-      const data = response2.data.submissions;
-      data.forEach((d, i) => {
-        d.pass = d.stdout == outputs[i];
-      });
-      return data;
-    }
-    retries--;
-  }
-
-  throw new Error(`Request failed after ${maxRetries} retries`);
-}
-
 const router = express.Router();
 
 router.post("/", async function (req, res) {
@@ -73,6 +45,9 @@ router.post("/", async function (req, res) {
           stdin: Buffer.from(`${inputs[0][0]}\n${inputs[0][1]}`).toString(
             "base64"
           ),
+          expected_output: Buffer.from(`${outputs[0]}`).toString("base64"),
+          callback_url:
+            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
           cpu_time_limit: 1,
         },
         {
@@ -81,6 +56,9 @@ router.post("/", async function (req, res) {
           stdin: Buffer.from(`${inputs[1][0]}\n${inputs[1][1]}`).toString(
             "base64"
           ),
+          callback_url:
+            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
+          expected_output: Buffer.from(`${outputs[1]}`).toString("base64"),
           cpu_time_limit: 1,
         },
         {
@@ -89,6 +67,9 @@ router.post("/", async function (req, res) {
           stdin: Buffer.from(`${inputs[2][0]}\n${inputs[2][1]}`).toString(
             "base64"
           ),
+          callback_url:
+            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
+          expected_output: Buffer.from(`${outputs[2]}`).toString("base64"),
           cpu_time_limit: 1,
         },
       ],
@@ -96,45 +77,7 @@ router.post("/", async function (req, res) {
   };
   try {
     const response = await axios.request(options);
-
-    const options2 = {
-      method: "GET",
-      url: `${process.env.COMPILER_URL}/submissions/batch`,
-      params: {
-        tokens: `${response.data[0].token},${response.data[1].token},${response.data[2].token}`,
-        base64_encoded: "false",
-        fields: "stdout,time,memory,stderr,compile_output,message",
-      },
-      headers: {
-        "X-RapidAPI-Key": process.env.RAPID_APIKEY,
-        "X-RapidAPI-Host": process.env.RAPID_APIHOST,
-      },
-    };
-
-    const data = await requestAndRetry(options2);
-    res.status(201).json(data);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-router.get("/", async function (req, res) {
-  const options = {
-    method: "GET",
-    url: `${process.env.COMPILER_URL}/submissions/batch`,
-    params: {
-      tokens: `${req.body.tokens[0]},${req.body.tokens[1]},${req.body.tokens[2]}`,
-      base64_encoded: "false",
-      fields: "stdout,time,memory,stderr,compile_output,message",
-    },
-    headers: {
-      "X-RapidAPI-Key": process.env.RAPID_APIKEY,
-      "X-RapidAPI-Host": process.env.RAPID_APIHOST,
-    },
-  };
-  try {
-    const response = await axios.request(options);
-    res.json(response.data);
+    res.status(201).json(response.data);
   } catch (error) {
     console.error(error);
   }
