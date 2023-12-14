@@ -67,7 +67,7 @@ router.post("/", async function (req, res) {
       method: 'GET',
       url: `${process.env.COMPILER_URL}/submissions/batch`,
       params: {
-        tokens: `${response.data[0].token},${response.data[1].token},${response.data[2].token}`,
+        tokens: ``,
         base64_encoded: 'false',
         fields: 'stdout,time,memory,stderr,compile_output,message'
       },
@@ -76,19 +76,40 @@ router.post("/", async function (req, res) {
         'X-RapidAPI-Host': process.env.RAPID_APIHOST
       }
     };
-    setTimeout(async()=>{
+    var count = 0;
+    var tokens = response.data;
+    var outputData = []
+    while(count < 10 ){
+      await new Promise(r => setTimeout(r, 1000));//sleep 1s
+      options2.params.tokens = toStringTokenList(tokens);
+
       const response2 = await axios.request(options2);
       const data = response2.data.submissions;
       data.forEach ((d, i)=>{
-        d.pass = (d.stdout == outputs[i])
+        if(!Object.values(d).every(x => x===null))
+        {
+          d.pass = (d.stdout == outputs[i]);
+          tokens.splice(i, 1);
+        }
       })
       res.json(data)
-    }, 4000)
+
+      count++
+    }
   } catch (error) {
     console.error(error);
   }
 
   
 });
+const toStringTokenList = (tokens)=>{
+  var str = '';
+  tokens.forEach(token=>{
+    str = str + `${token},`;
+  })
+  if(str.length > 0)
+    str = str.slice(0, -1);
+  return str;
+}
 
 export default router;
