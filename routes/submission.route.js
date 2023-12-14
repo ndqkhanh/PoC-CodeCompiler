@@ -96,7 +96,7 @@ router.get("/", async function (req, res) {
     params: {
       tokens: `${req.body.tokens[0]},${req.body.tokens[1]},${req.body.tokens[2]}`,
       base64_encoded: "false",
-      fields: "stdout,time,memory,stderr,compile_output,message",
+      fields: "stdout,time,memory,stderr,token,compile_output,message,status",
     },
     headers: {
       "X-RapidAPI-Key": process.env.RAPID_APIKEY,
