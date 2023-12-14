@@ -15,9 +15,8 @@ function wait(ms) {
 }
 
 async function requestAndRetry(options) {
-  const maxRetries = 3;
   let retries = 5;
-  let timeout = 1000;
+  let timeout = 2000;
 
   while (retries > 0) {
     await wait(timeout);
@@ -27,10 +26,15 @@ async function requestAndRetry(options) {
     );
     if (isDataReady) {
       const data = response2.data.submissions;
+      var infoTestCasePass = 0;
       data.forEach((d, i) => {
         d.pass = d.stdout == outputs[i];
+        d.input = inputs[i];
+        if(d.pass) 
+          infoTestCasePass = infoTestCasePass + 1;
+        // if(d.stdout) d.stdout = Buffer.from(d.stdout, 'base64').toString();
       });
-      return data;
+      return {infoTestCasePass: `${infoTestCasePass}/${inputs.length}`, data};
     }
     retries--;
   }

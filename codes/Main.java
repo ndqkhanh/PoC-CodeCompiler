@@ -2,7 +2,7 @@ import java.io.*;
 
 class Result {
     public static int sumOfTwoIntegers(int a, int b) {
-        return;
+        return a + b;
     }
 }
 
