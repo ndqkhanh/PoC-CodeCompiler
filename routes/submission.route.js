@@ -46,8 +46,7 @@ router.post("/", async function (req, res) {
             "base64"
           ),
           expected_output: Buffer.from(`${outputs[0]}`).toString("base64"),
-          callback_url:
-            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
+          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
           cpu_time_limit: 1,
         },
         {
@@ -56,8 +55,7 @@ router.post("/", async function (req, res) {
           stdin: Buffer.from(`${inputs[1][0]}\n${inputs[1][1]}`).toString(
             "base64"
           ),
-          callback_url:
-            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
+          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
           expected_output: Buffer.from(`${outputs[1]}`).toString("base64"),
           cpu_time_limit: 1,
         },
@@ -67,8 +65,7 @@ router.post("/", async function (req, res) {
           stdin: Buffer.from(`${inputs[2][0]}\n${inputs[2][1]}`).toString(
             "base64"
           ),
-          callback_url:
-            "https://3n2h512t-3000.asse.devtunnels.ms/callback/submissions",
+          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
           expected_output: Buffer.from(`${outputs[2]}`).toString("base64"),
           cpu_time_limit: 1,
         },
