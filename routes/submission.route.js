@@ -38,38 +38,14 @@ router.post("/", async function (req, res) {
       "X-RapidAPI-Host": process.env.RAPID_APIHOST,
     },
     data: {
-      submissions: [
-        {
-          language_id: language_id,
-          source_code: Buffer.from(source).toString("base64"),
-          stdin: Buffer.from(`${inputs[0][0]}\n${inputs[0][1]}`).toString(
-            "base64"
-          ),
-          expected_output: Buffer.from(`${outputs[0]}`).toString("base64"),
-          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
-          cpu_time_limit: 1,
-        },
-        {
-          language_id: language_id,
-          source_code: Buffer.from(source).toString("base64"),
-          stdin: Buffer.from(`${inputs[1][0]}\n${inputs[1][1]}`).toString(
-            "base64"
-          ),
-          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
-          expected_output: Buffer.from(`${outputs[1]}`).toString("base64"),
-          cpu_time_limit: 1,
-        },
-        {
-          language_id: language_id,
-          source_code: Buffer.from(source).toString("base64"),
-          stdin: Buffer.from(`${inputs[2][0]}\n${inputs[2][1]}`).toString(
-            "base64"
-          ),
-          callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
-          expected_output: Buffer.from(`${outputs[2]}`).toString("base64"),
-          cpu_time_limit: 1,
-        },
-      ],
+      submissions: inputs.map((input, index) => ({
+        language_id: language_id,
+        source_code: Buffer.from(source).toString("base64"),
+        stdin: Buffer.from(`${input[0]}\n${input[1]}`).toString("base64"),
+        expected_output: Buffer.from(`${outputs[index]}`).toString("base64"),
+        callback_url: `${process.env.FORWARD_URL}/callback/submissions`,
+        cpu_time_limit: 1,
+      })),
     },
   };
   try {
