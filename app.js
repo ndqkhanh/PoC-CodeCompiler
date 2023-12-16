@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 
 import submissionRouter from "./routes/submission.route.js";
 import languageRouter from "./routes/language.route.js";

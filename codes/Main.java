@@ -16,8 +16,10 @@ public class Main {
 
         int result = Result.sumOfTwoIntegers(a, b);
 
-        System.out.print(result);
+        while (true) {
+            System.out.print(result);
+            bufferedReader.close();
+        }
 
-        bufferedReader.close();
     }
 }
