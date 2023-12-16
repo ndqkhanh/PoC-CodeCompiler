@@ -4,7 +4,6 @@ import axios from "axios";
 const router = express.Router();
 
 router.put("/", async function (req, res) {
-  console.log("callback", req.body);
   const { token } = JSON.parse(JSON.stringify(req.body));
   console.log("token", token);
   if (typeof token === "string") {
