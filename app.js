@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 
 import submissionRouter from "./routes/submission.route.js";
 import languageRouter from "./routes/language.route.js";
@@ -29,5 +30,5 @@ app.use(function (err, req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, function () {
-  console.log(`Sakila API is listening at http://localhost:${PORT}`);
+  console.log(`Code Excecution API is listening at http://localhost:${PORT}`);
 });
